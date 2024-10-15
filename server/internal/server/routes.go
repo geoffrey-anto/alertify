@@ -10,7 +10,14 @@ import (
 )
 
 func (s *FiberServer) RegisterFiberRoutes() {
+	s.App.Use(func(c *fiber.Ctx) error {
+		fmt.Printf("Request: %s\t%s\t%s\n", c.Method(), c.Path(), time.Now())
+		return c.Next()
+	})
+
 	s.App.Get("/", s.HelloWorldHandler)
+
+	s.App.Get("webhook", s.SendNotifications)
 
 	s.App.Get("/health", s.healthHandler)
 
@@ -22,14 +29,15 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	v1.Post("/register", s.RegisterUserHandler)
 
+	v1.Use(s.AuthMiddleware)
+
 	v1.Post("/reminder", s.CreateReminderHandler)
 
-	v1.Get("/reminder/:id", s.GetRemindersHandler)
+	v1.Get("/reminder", s.GetRemindersHandler)
 
 	v1.Get("/reminders-user/:user_id", s.GetRemindersForUserHandler)
 
 	v1.Get("/all-reminders", s.GetAllRemindersHandler)
-
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {

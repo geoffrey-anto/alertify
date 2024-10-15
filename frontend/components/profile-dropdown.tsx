@@ -12,9 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, UserIcon } from "lucide-react";
 import { useTheme } from "next-themes";
+import { logout } from "../lib/actions";
+import { useRouter } from "next/navigation";
 
 const ProfileDropdown = () => {
   const { setTheme } = useTheme();
+  const router = useRouter();
 
   return (
     <>
@@ -33,11 +36,15 @@ const ProfileDropdown = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItem>Settings</DropdownMenuItem>
           <DropdownMenuItem>Support</DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2">
-            Toggle theme
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+          >
+            Logout
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <DropdownMenu>

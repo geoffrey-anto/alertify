@@ -20,7 +20,7 @@ export default function AuthLayout({
   const { setTheme } = useTheme();
   return (
     <div className="flex items-center justify-center h-screen">
-      <p className="text-2xl font-bold absolute top-5 left-5">Alertify</p>
+      <p className="text-2xl font-bold absolute top-5 left-5">alertly</p>
       <div className="absolute top-5 right-5">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

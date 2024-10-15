@@ -15,9 +15,6 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
-export const description =
-  "A login form with email and password. There's an option to login with Google and a link to sign up if you don't have an account.";
-
 export function Login() {
   const router = useRouter();
   const { toast } = useToast();

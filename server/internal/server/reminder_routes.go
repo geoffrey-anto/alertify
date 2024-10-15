@@ -68,19 +68,9 @@ func (s *FiberServer) GetRemindersHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) GetRemindersForUserHandler(c *fiber.Ctx) error {
-	userId := c.Params("user_id")
+	userId := c.Locals("user_id").(int)
 
-	userId = strings.TrimSpace(userId)
-
-	userIdInt, err := strconv.Atoi(userId)
-
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid user ID",
-		})
-	}
-
-	reminders, err := s.db.GetAllRemindersForUser(userIdInt)
+	reminders, err := s.db.GetAllRemindersForUser(userId)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

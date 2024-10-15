@@ -40,9 +40,6 @@ import * as jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import Error from "./error";
 
-export const description =
-  "An products dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of products in a table with actions.";
-
 export async function Dashboard() {
   let reminders: Reminder[] = [];
 
@@ -62,7 +59,11 @@ export async function Dashboard() {
       ).data
     );
 
-    const response = await api.get(`/reminders-user/${decoded.id}`);
+    const response = await api.get(`/reminders-user/${decoded.id}`, {
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
 
     if (response.status !== 200) {
       return <Error />;
@@ -71,6 +72,7 @@ export async function Dashboard() {
     reminders = await response.data.data.reminders;
   } catch (e) {
     console.error(e);
+    return <Error />;
   }
 
   return (
