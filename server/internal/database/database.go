@@ -29,6 +29,18 @@ type Service interface {
 
 	// GetUser retrieves a user from the database.
 	GetUser(email string) (models.User, error)
+
+	// SaveReminder saves a reminder to the database.
+	SaveReminder(userId int, name, status, description, category, reminderInterval, reminderEnd string) error
+
+	// GetReminderById retrieves a reminder from the database by its ID.
+	GetReminderById(id int) (models.Reminder, error)
+
+	// GetAllRemindersForUser retrieves all reminders for a user from the database.
+	GetAllRemindersForUser(userId int) ([]models.Reminder, error)
+
+	// GetAllReminders retrieves all reminders from the database.
+	GetAllReminders() ([]models.Reminder, error)
 }
 
 type service struct {
@@ -54,6 +66,23 @@ func initDB(db *sql.DB) {
 		pass TEXT NOT NULL,
 		fname TEXT NOT NULL,
 		lname TEXT NOT NULL
+	)`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS reminders (
+		id SERIAL PRIMARY KEY,
+		user_id INT NOT NULL,
+		name TEXT NOT NULL,
+		status TEXT NOT NULL,
+		description TEXT NOT NULL,
+		category TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		reminder_interval TEXT NOT NULL,
+		reminder_end TEXT NOT NULL
 	)`)
 
 	if err != nil {
@@ -155,4 +184,59 @@ func (s *service) GetUser(email string) (models.User, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+func (s *service) SaveReminder(userId int, name, status, description, category, reminderInterval, reminderEnd string) error {
+	_, err := s.db.Exec("INSERT INTO reminders (user_id, name, status, description, category, reminder_interval, reminder_end) VALUES ($1, $2, $3, $4, $5, $6, $7)", userId, name, status, description, category, reminderInterval, reminderEnd)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *service) GetReminderById(id int) (models.Reminder, error) {
+	var reminder models.Reminder
+	err := s.db.QueryRow("SELECT * FROM reminders WHERE id = $1", id).Scan(&reminder.ID, &reminder.UserID, &reminder.Name, &reminder.Status, &reminder.Description, &reminder.Category, &reminder.CreatedAt, &reminder.UpdatedAt, &reminder.ReminderInterval, &reminder.ReminderEnd)
+	if err != nil {
+		return reminder, err
+	}
+	return reminder, nil
+}
+
+func (s *service) GetAllRemindersForUser(userId int) ([]models.Reminder, error) {
+	rows, err := s.db.Query("SELECT * FROM reminders WHERE user_id = $1", userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reminders []models.Reminder = []models.Reminder{}
+	for rows.Next() {
+		var reminder models.Reminder
+		err := rows.Scan(&reminder.ID, &reminder.UserID, &reminder.Name, &reminder.Status, &reminder.Description, &reminder.Category, &reminder.CreatedAt, &reminder.UpdatedAt, &reminder.ReminderInterval, &reminder.ReminderEnd)
+		if err != nil {
+			return nil, err
+		}
+		reminders = append(reminders, reminder)
+	}
+	return reminders, nil
+}
+
+func (s *service) GetAllReminders() ([]models.Reminder, error) {
+	rows, err := s.db.Query("SELECT * FROM reminders")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var reminders []models.Reminder = []models.Reminder{}
+	for rows.Next() {
+		var reminder models.Reminder
+		err := rows.Scan(&reminder.ID, &reminder.UserID, &reminder.Name, &reminder.Status, &reminder.Description, &reminder.Category, &reminder.CreatedAt, &reminder.UpdatedAt, &reminder.ReminderInterval, &reminder.ReminderEnd)
+		if err != nil {
+			return nil, err
+		}
+		reminders = append(reminders, reminder)
+	}
+	return reminders, nil
 }

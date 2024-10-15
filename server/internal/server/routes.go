@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"server/internal/models"
 	"server/internal/utils"
 	"time"
 
@@ -23,6 +22,14 @@ func (s *FiberServer) RegisterFiberRoutes() {
 
 	v1.Post("/register", s.RegisterUserHandler)
 
+	v1.Post("/reminder", s.CreateReminderHandler)
+
+	v1.Get("/reminder/:id", s.GetRemindersHandler)
+
+	v1.Get("/reminders-user/:user_id", s.GetRemindersForUserHandler)
+
+	v1.Get("/all-reminders", s.GetAllRemindersHandler)
+
 }
 
 func (s *FiberServer) HelloWorldHandler(c *fiber.Ctx) error {
@@ -38,9 +45,12 @@ func (s *FiberServer) healthHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) LoginHandler(c *fiber.Ctx) error {
-	// get email and password from request body
+	type UserLogin struct {
+		Email string `json:"email" xml:"email" form:"email"`
+		Pass  string `json:"pass" xml:"pass" form:"pass"`
+	}
 
-	user := new(models.UserLogin)
+	user := new(UserLogin)
 
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -105,7 +115,14 @@ func (s *FiberServer) LoginHandler(c *fiber.Ctx) error {
 }
 
 func (s *FiberServer) RegisterUserHandler(c *fiber.Ctx) error {
-	user := new(models.User)
+	type UserRegister struct {
+		Email string `json:"email" xml:"email" form:"email"`
+		Pass  string `json:"pass" xml:"pass" form:"pass"`
+		Fname string `json:"fname" xml:"fname" form:"fname"`
+		Lname string `json:"lname" xml:"lname" form:"lname"`
+	}
+
+	user := new(UserRegister)
 
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -113,7 +130,6 @@ func (s *FiberServer) RegisterUserHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	// hash password
 	hashedPassword, err := utils.HashPassword(user.Pass)
 
 	if err != nil {

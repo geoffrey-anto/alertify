@@ -9,7 +9,15 @@ type User struct {
 	Lname string `json:"lname" xml:"lname" form:"lname"`
 }
 
-type UserLogin struct {
-	Email string `json:"email" xml:"email" form:"email"`
-	Pass  string `json:"pass" xml:"pass" form:"pass"`
+type Reminder struct {
+	ID               int    `json:"id" xml:"id" form:"id"`
+	UserID           int    `json:"user_id" xml:"user_id" form:"user_id"`
+	Name             string `json:"name" xml:"name" form:"name"`
+	Status           string `json:"status" xml:"status" form:"status"`
+	Description      string `json:"description" xml:"description" form:"description"`
+	Category         string `json:"category" xml:"category" form:"category"`
+	CreatedAt        string `json:"created_at" xml:"created_at" form:"created_at"`
+	UpdatedAt        string `json:"updated_at" xml:"updated_at" form:"updated_at"`
+	ReminderInterval string `json:"reminder_interval" xml:"reminder_interval" form:"reminder_interval"`
+	ReminderEnd      string `json:"reminder_end" xml:"reminder_end" form:"reminder_end"`
 }
